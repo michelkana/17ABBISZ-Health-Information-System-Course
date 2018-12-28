@@ -1,0 +1,1206 @@
+	
+
+    --
+    -- PostgreSQL database dump
+    --
+     
+    SET statement_timeout = 0;
+    SET lock_timeout = 0;
+    SET client_encoding = 'UTF8';
+    SET standard_conforming_strings = on;
+    SET check_function_bodies = false;
+    SET client_min_messages = warning;
+     
+    --
+    -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+    --
+     
+    CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+     
+     
+    --
+    -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+    --
+     
+    COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+     
+     
+    SET search_path = public, pg_catalog;
+     
+    --
+    -- Name: accept_patient(integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION accept_patient(id_pac integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    update patient set registered=True where id_pac=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.accept_patient(id_pac integer) OWNER TO jadus;
+     
+    --
+    -- Name: all_roles(); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION all_roles() RETURNS text
+        LANGUAGE sql
+        AS $$
+    select name from role;
+    $$;
+     
+     
+    ALTER FUNCTION public.all_roles() OWNER TO jadus;
+     
+    --
+    -- Name: change_reservation(integer, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION change_reservation(id_res integer, state integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    UPDATE reservation SET state=$2 WHERE id_res=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.change_reservation(id_res integer, state integer) OWNER TO jadus;
+     
+    --
+    -- Name: check_register(integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION check_register(id_user integer) RETURNS boolean
+        LANGUAGE sql
+        AS $_$
+    SELECT registered FROM patient WHERE id_user=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.check_register(id_user integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_calendar(integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_calendar(id_doc integer, timedelta integer, worktime_from integer, worktime_to integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    insert into calendar (id_doc, timedelta, worktime_from, worktime_to) values ($1, $2, $3, $4)$_$;
+     
+     
+    ALTER FUNCTION public.new_calendar(id_doc integer, timedelta integer, worktime_from integer, worktime_to integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_department(character varying); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_department(name character varying) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO department (name) VALUES ($1);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_department(name character varying) OWNER TO jadus;
+     
+    --
+    -- Name: new_department(character varying, character varying); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_department(name character varying, acronym character varying) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO department (name, acronym) VALUES ($1, $2);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_department(name character varying, acronym character varying) OWNER TO jadus;
+     
+    --
+    -- Name: new_department(text, text); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_department(name text, acronym text) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO department (name, acronym) VALUES ($1,$2);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_department(name text, acronym text) OWNER TO jadus;
+     
+    --
+    -- Name: new_doctor(character varying, character varying, character varying, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_doctor(name character varying, surname character varying, title character varying, id_user integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO doctor (name, surname, title, id_user) VALUES ($1, $2, $3, $4);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_doctor(name character varying, surname character varying, title character varying, id_user integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_insurance(character varying, character varying, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_insurance(name character varying, acronym character varying, code integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO insurance (name, acronym, code) VALUES ($1,$2,$3);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_insurance(name character varying, acronym character varying, code integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_insurance(text, text, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_insurance(text, text, integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO insurance (name, acronym, code) VALUES ($1,$2,$3);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_insurance(text, text, integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_patient(character varying, character varying, character varying, date, integer, integer, text); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_patient(name character varying, surname character varying, rod_cis character varying, bir_dat date, id_user integer, id_ins integer, email text) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO patient (name, surname, rod_cis, bir_dat, id_user, id_ins, registered, email) VALUES ($1, $2, $3, $4, $5, $6, false, $7);
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_patient(name character varying, surname character varying, rod_cis character varying, bir_dat date, id_user integer, id_ins integer, email text) OWNER TO jadus;
+     
+    --
+    -- Name: new_reservation(integer, integer, date, time without time zone); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_reservation(id_pac integer, id_doc integer, date date, at time without time zone) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    insert into reservation (id_pac, id_doc, date, at, state) values ($1, $2, $3, $4, 0)
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_reservation(id_pac integer, id_doc integer, date date, at time without time zone) OWNER TO jadus;
+     
+    --
+    -- Name: new_user(character varying, character varying, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_user(login character varying, password character varying, id_role integer) RETURNS integer
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO nis_user (login, password, id_role) VALUES ($1, $2, $3);
+    SELECT id_user from nis_user where login=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_user(login character varying, password character varying, id_role integer) OWNER TO jadus;
+     
+    --
+    -- Name: new_user(character varying, character varying, integer, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION new_user(login character varying, password character varying, id_role integer, id_dash integer) RETURNS integer
+        LANGUAGE sql
+        AS $_$
+    INSERT INTO nis_user (login, password, id_role, id_dash) VALUES ($1, $2, $3, $4);
+    SELECT id_user from nis_user where login=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.new_user(login character varying, password character varying, id_role integer, id_dash integer) OWNER TO jadus;
+     
+    --
+    -- Name: remove_insurance(integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION remove_insurance(id integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    DELETE FROM insurance WHERE id_ins=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.remove_insurance(id integer) OWNER TO jadus;
+     
+    --
+    -- Name: set_department(integer, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION set_department(id_doc integer, id_dep integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    update doctor set id_dep=$2 where id_doc=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.set_department(id_doc integer, id_dep integer) OWNER TO jadus;
+     
+    --
+    -- Name: update_calendar(integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_calendar(id_doc integer, timedelta integer, worktime_from integer, worktime_to integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    update calendar set timedelta=$2, worktime_from=$3, worktime_to=$4 WHERE id_doc=$1 $_$;
+     
+     
+    ALTER FUNCTION public.update_calendar(id_doc integer, timedelta integer, worktime_from integer, worktime_to integer) OWNER TO jadus;
+     
+    --
+    -- Name: update_department(integer, text, text); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_department(id_dep integer, name text, acronym text) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    UPDATE department SET name=$2, acronym=$3 WHERE id_dep=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.update_department(id_dep integer, name text, acronym text) OWNER TO jadus;
+     
+    --
+    -- Name: update_doctor(integer, character varying, character varying, character varying, integer, integer, character varying); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_doctor(id_doc integer, name character varying, surname character varying, title character varying, id_dep integer, id_user integer, password character varying) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    update doctor set name=$2, surname=$3, title=$4, id_dep=$5 where id_doc=$1;
+    update nis_user set password=$7 where id_user=$6;
+    $_$;
+     
+     
+    ALTER FUNCTION public.update_doctor(id_doc integer, name character varying, surname character varying, title character varying, id_dep integer, id_user integer, password character varying) OWNER TO jadus;
+     
+    --
+    -- Name: update_insurance(integer, character varying, character varying, integer); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_insurance(id_ins integer, name character varying, acronym character varying, code integer) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    update insurance set name=$2, acronym=$3, code=$4 where id_ins=$1;
+    $_$;
+     
+     
+    ALTER FUNCTION public.update_insurance(id_ins integer, name character varying, acronym character varying, code integer) OWNER TO jadus;
+     
+    --
+    -- Name: update_patient(integer, character varying, character varying, character varying, date, integer, text); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_patient(id_pac integer, name character varying, surname character varying, rod_cis character varying, bir_dat date, id_ins integer, email text) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    UPDATE patient SET name=$2, surname=$3, rod_cis=$4, bir_dat=$5, id_ins=$6, email=$7 WHERE id_pac=$1;
+    INSERT INTO patient_edit_history (id_pac, id_user, timestamp) VALUES ($1, (SELECT id_user FROM patient WHERE id_pac=$1), now());
+    $_$;
+     
+     
+    ALTER FUNCTION public.update_patient(id_pac integer, name character varying, surname character varying, rod_cis character varying, bir_dat date, id_ins integer, email text) OWNER TO jadus;
+     
+    --
+    -- Name: update_patient(integer, character varying, character varying, character varying, date, integer, text, text); Type: FUNCTION; Schema: public; Owner: jadus
+    --
+     
+    CREATE FUNCTION update_patient(id_pac integer, name character varying, surname character varying, rod_cis character varying, bir_dat date, id_ins integer, email text, password text) RETURNS void
+        LANGUAGE sql
+        AS $_$
+    UPDATE patient SET name=$2, surname=$3, rod_cis=$4, bir_dat=$5, id_ins=$6, email=$7 WHERE id_user=$1; UPDATE nis_user SET password=$8 WHERE id_user=$1;
+    INSERT INTO patient_edit_history (id_pac, id_user, time_stamp) VALUES ((SELECT id_pac FROM patient WHERE id_user=$1), $1, now());
+    $_$;
+     
+     
+    ALTER FUNCTION public.update_patient(id_pac integer, name character varying, surname character varying, rod_cis character varying, bir_dat date, id_ins integer, email text, password text) OWNER TO jadus;
+     
+    SET default_tablespace = '';
+     
+    SET default_with_oids = false;
+     
+    --
+    -- Name: calendar; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE calendar (
+        id_cal integer NOT NULL,
+        id_doc integer,
+        timedelta integer,
+        worktime_from integer,
+        worktime_to integer
+    );
+     
+     
+    ALTER TABLE public.calendar OWNER TO jadus;
+     
+    --
+    -- Name: calendar_id_cal_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE calendar_id_cal_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.calendar_id_cal_seq OWNER TO jadus;
+     
+    --
+    -- Name: calendar_id_cal_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE calendar_id_cal_seq OWNED BY calendar.id_cal;
+     
+     
+    --
+    -- Name: dash; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE dash (
+        id_dash integer NOT NULL,
+        url text
+    );
+     
+     
+    ALTER TABLE public.dash OWNER TO jadus;
+     
+    --
+    -- Name: dash_id_dash_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE dash_id_dash_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.dash_id_dash_seq OWNER TO jadus;
+     
+    --
+    -- Name: dash_id_dash_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE dash_id_dash_seq OWNED BY dash.id_dash;
+     
+     
+    --
+    -- Name: department; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE department (
+        id_dep integer NOT NULL,
+        name character varying(80) NOT NULL,
+        acronym character varying(10)
+    );
+     
+     
+    ALTER TABLE public.department OWNER TO jadus;
+     
+    --
+    -- Name: department_id_dep_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE department_id_dep_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.department_id_dep_seq OWNER TO jadus;
+     
+    --
+    -- Name: department_id_dep_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE department_id_dep_seq OWNED BY department.id_dep;
+     
+     
+    --
+    -- Name: doctor; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE doctor (
+        id_doc integer NOT NULL,
+        name character varying(25) NOT NULL,
+        surname character varying(25) NOT NULL,
+        title character varying(10) NOT NULL,
+        id_dep integer,
+        id_user integer
+    );
+     
+     
+    ALTER TABLE public.doctor OWNER TO jadus;
+     
+    --
+    -- Name: doctor_id_doc_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE doctor_id_doc_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.doctor_id_doc_seq OWNER TO jadus;
+     
+    --
+    -- Name: doctor_id_doc_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE doctor_id_doc_seq OWNED BY doctor.id_doc;
+     
+     
+    --
+    -- Name: insurance; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE insurance (
+        id_ins integer NOT NULL,
+        name character varying(50),
+        acronym character varying(6) NOT NULL,
+        code integer NOT NULL
+    );
+     
+     
+    ALTER TABLE public.insurance OWNER TO jadus;
+     
+    --
+    -- Name: insurance_id_ins_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE insurance_id_ins_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.insurance_id_ins_seq OWNER TO jadus;
+     
+    --
+    -- Name: insurance_id_ins_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE insurance_id_ins_seq OWNED BY insurance.id_ins;
+     
+     
+    --
+    -- Name: nis_user; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE nis_user (
+        id_user integer NOT NULL,
+        login character varying(25) NOT NULL,
+        password character varying(16) NOT NULL,
+        id_role integer,
+        id_dash integer
+    );
+     
+     
+    ALTER TABLE public.nis_user OWNER TO jadus;
+     
+    --
+    -- Name: nis_user_id_user_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE nis_user_id_user_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.nis_user_id_user_seq OWNER TO jadus;
+     
+    --
+    -- Name: nis_user_id_user_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE nis_user_id_user_seq OWNED BY nis_user.id_user;
+     
+     
+    --
+    -- Name: patient; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE patient (
+        id_pac integer NOT NULL,
+        name character varying(40) NOT NULL,
+        surname character varying(40) NOT NULL,
+        rod_cis character varying(10) NOT NULL,
+        bir_dat date NOT NULL,
+        id_user integer,
+        id_ins integer,
+        registered boolean NOT NULL,
+        email text NOT NULL
+    );
+     
+     
+    ALTER TABLE public.patient OWNER TO jadus;
+     
+    --
+    -- Name: patient_edit_history; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE patient_edit_history (
+        id_his integer NOT NULL,
+        id_pac integer,
+        id_user integer,
+        time_stamp timestamp without time zone
+    );
+     
+     
+    ALTER TABLE public.patient_edit_history OWNER TO jadus;
+     
+    --
+    -- Name: patient_edit_history_id_his_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE patient_edit_history_id_his_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.patient_edit_history_id_his_seq OWNER TO jadus;
+     
+    --
+    -- Name: patient_edit_history_id_his_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE patient_edit_history_id_his_seq OWNED BY patient_edit_history.id_his;
+     
+     
+    --
+    -- Name: patient_id_pac_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE patient_id_pac_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.patient_id_pac_seq OWNER TO jadus;
+     
+    --
+    -- Name: patient_id_pac_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE patient_id_pac_seq OWNED BY patient.id_pac;
+     
+     
+    --
+    -- Name: reservation; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE reservation (
+        id_res integer NOT NULL,
+        id_doc integer NOT NULL,
+        id_pac integer NOT NULL,
+        at time without time zone NOT NULL,
+        date date NOT NULL,
+        state integer NOT NULL
+    );
+     
+     
+    ALTER TABLE public.reservation OWNER TO jadus;
+     
+    --
+    -- Name: reservation_id_res_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE reservation_id_res_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.reservation_id_res_seq OWNER TO jadus;
+     
+    --
+    -- Name: reservation_id_res_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE reservation_id_res_seq OWNED BY reservation.id_res;
+     
+     
+    --
+    -- Name: role; Type: TABLE; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    CREATE TABLE role (
+        id_role integer NOT NULL,
+        name character varying(25) NOT NULL,
+        level integer
+    );
+     
+     
+    ALTER TABLE public.role OWNER TO jadus;
+     
+    --
+    -- Name: role_id_role_seq; Type: SEQUENCE; Schema: public; Owner: jadus
+    --
+     
+    CREATE SEQUENCE role_id_role_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+     
+     
+    ALTER TABLE public.role_id_role_seq OWNER TO jadus;
+     
+    --
+    -- Name: role_id_role_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jadus
+    --
+     
+    ALTER SEQUENCE role_id_role_seq OWNED BY role.id_role;
+     
+     
+    --
+    -- Name: id_cal; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY calendar ALTER COLUMN id_cal SET DEFAULT nextval('calendar_id_cal_seq'::regclass);
+     
+     
+    --
+    -- Name: id_dash; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY dash ALTER COLUMN id_dash SET DEFAULT nextval('dash_id_dash_seq'::regclass);
+     
+     
+    --
+    -- Name: id_dep; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY department ALTER COLUMN id_dep SET DEFAULT nextval('department_id_dep_seq'::regclass);
+     
+     
+    --
+    -- Name: id_doc; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY doctor ALTER COLUMN id_doc SET DEFAULT nextval('doctor_id_doc_seq'::regclass);
+     
+     
+    --
+    -- Name: id_ins; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY insurance ALTER COLUMN id_ins SET DEFAULT nextval('insurance_id_ins_seq'::regclass);
+     
+     
+    --
+    -- Name: id_user; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY nis_user ALTER COLUMN id_user SET DEFAULT nextval('nis_user_id_user_seq'::regclass);
+     
+     
+    --
+    -- Name: id_pac; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient ALTER COLUMN id_pac SET DEFAULT nextval('patient_id_pac_seq'::regclass);
+     
+     
+    --
+    -- Name: id_his; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient_edit_history ALTER COLUMN id_his SET DEFAULT nextval('patient_edit_history_id_his_seq'::regclass);
+     
+     
+    --
+    -- Name: id_res; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY reservation ALTER COLUMN id_res SET DEFAULT nextval('reservation_id_res_seq'::regclass);
+     
+     
+    --
+    -- Name: id_role; Type: DEFAULT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY role ALTER COLUMN id_role SET DEFAULT nextval('role_id_role_seq'::regclass);
+     
+     
+    --
+    -- Data for Name: calendar; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY calendar (id_cal, id_doc, timedelta, worktime_from, worktime_to) FROM stdin;
+    1       3       20      8       16
+    2       7       40      8       20
+    3       6       10      8       10
+    \.
+     
+     
+    --
+    -- Name: calendar_id_cal_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('calendar_id_cal_seq', 3, true);
+     
+     
+    --
+    -- Data for Name: dash; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY dash (id_dash, url) FROM stdin;
+    1       patient
+    2       doctor
+    3       admin
+    \.
+     
+     
+    --
+    -- Name: dash_id_dash_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('dash_id_dash_seq', 3, true);
+     
+     
+    --
+    -- Data for Name: department; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY department (id_dep, name, acronym) FROM stdin;
+    2       Otolaryngokologie       ORL
+    4       Hematologie     HEM
+    3       Neprirazen    ---
+    5       Proktologie     PRO
+    6       Praktický lékar - dospelí  PLD
+    7       Praktický lékar - deti a dorost     PLDeD
+    \.
+     
+     
+    --
+    -- Name: department_id_dep_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('department_id_dep_seq', 7, true);
+     
+     
+    --
+    -- Data for Name: doctor; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY doctor (id_doc, name, surname, title, id_dep, id_user) FROM stdin;
+    3       Václav Šípek MUDr.   4       7
+    6       Alfonz  Zkumafka        MUDr.   5       27
+    7       Jarda   Vocas   CUKr.   5       39
+    \.
+     
+     
+    --
+    -- Name: doctor_id_doc_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('doctor_id_doc_seq', 7, true);
+     
+     
+    --
+    -- Data for Name: insurance; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY insurance (id_ins, name, acronym, code) FROM stdin;
+    9       Vojenská zdravotní pojištovna       VoZP    201
+    10      Všeobecná zdravotní pojištovna     VZP     111
+    \.
+     
+     
+    --
+    -- Name: insurance_id_ins_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('insurance_id_ins_seq', 10, true);
+     
+     
+    --
+    -- Data for Name: nis_user; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY nis_user (id_user, login, password, id_role, id_dash) FROM stdin;
+    1       admin   admin   1       3
+    7       sipekva heslo   2       2
+    14      sustekk heslo   3       1
+    4       test    test    2       2
+    15      stuchda heslo   3       1
+    16      novakma heslo   2       2
+    8       hagenl  heslo   2       2
+    17      yaduss  yaduss  3       1
+    22      izv     heslo   3       1
+    24      mrkvickajo      heslo   3       1
+    25      binao   heslo   3       1
+    26      james   heslo   3       1
+    27      alf     heslo   2       2
+    28      brownden        heslo   3       1
+    31      napoleon        heslo   3       1
+    32      potterha        heslo   3       1
+    33      granger heslo   3       1
+    34      jeannedark      heslo   3       1
+    36      bushg   heslo   3       1
+    37      norris  heslo   3       1
+    38      blacknil        heslo   3       1
+    39      vocas   heslo   2       2
+    40      young   heslo   3       1
+    41      annabila        heslo   3       1
+    42      blazena heslo   3       1
+    43      sheldon heslo   3       1
+    23      ospanali        heslo   3       1
+    \.
+     
+     
+    --
+    -- Name: nis_user_id_user_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('nis_user_id_user_seq', 43, true);
+     
+     
+    --
+    -- Data for Name: patient; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY patient (id_pac, name, surname, rod_cis, bir_dat, id_user, id_ins, registered, email) FROM stdin;
+    2       Pavel   Šustek 9311250024      1993-11-25      14      9       t       sustekk@gmail.com
+    3       David   Stuchlík       9012120145      1990-12-12      15      9       t       stuchda@gmail.com
+    5       Roman   IzV     8912120144      2989-12-12      22      9       t       izv@localhost
+    7       Josef   Mrkvicka       6909091236      1969-09-09      24      9       t       mrkvicka@sklenik.cz
+    8       Ondrej Bína   9504050325      1995-04-05      25      9       t       bina@gmail.com
+    10      Den     Brown   8001235485      1980-01-23      28      10      t      
+    9       James   Bond    0070070007      1977-07-07      26      9       t       james@bond.com
+    11      Napoleon        Bonaparte       6915088796      1969-08-15      31      9       t      
+    12      Harry   Potter  8706298565      1987-06-29      32      9       t      
+    13      Hermione        Granger 9155068565      1991-05-06      33      9       t      
+    14      George  Bush    7507069212      1975-07-06      36      10      t      
+    15      Chuck   Norris  8411039664      1984-11-03      37      10      t      
+    16      Nil     Black   7909253341      1979-09-25      38      9       t      
+    17      Elizabeth       Young   9251223344      1992-01-22      40      9       t      
+    18      Anna    Bilá   9552158575      1995-02-15      41      9       t      
+    19      Blažena        Škopková      8059151234      1980-09-15      42      10      f       skopkova@gmail.com
+    20      Sheldon Cooper  1234563366      1987-01-01      43      9       t       sc@gmail.com
+    6       Alina   Ospanova        9458262121      1994-08-23      23      9       t      
+    \.
+     
+     
+    --
+    -- Data for Name: patient_edit_history; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY patient_edit_history (id_his, id_pac, id_user, time_stamp) FROM stdin;
+    2       2       14      2014-12-10 10:38:55.357964
+    3       2       14      2014-12-10 10:39:20.985935
+    4       2       14      2014-12-10 10:49:42.945697
+    5       2       14      2014-12-10 15:39:22.983645
+    6       2       14      2014-12-10 15:42:42.262069
+    7       3       15      2014-12-10 18:03:47.115954
+    8       5       22      2014-12-12 08:16:05.655323
+    9       6       23      2014-12-12 13:25:11.098309
+    10      6       23      2014-12-12 13:25:52.570461
+    11      7       24      2014-12-12 16:51:31.563994
+    12      6       23      2014-12-14 10:33:41.671399
+    \.
+     
+     
+    --
+    -- Name: patient_edit_history_id_his_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('patient_edit_history_id_his_seq', 12, true);
+     
+     
+    --
+    -- Name: patient_id_pac_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('patient_id_pac_seq', 20, true);
+     
+     
+    --
+    -- Data for Name: reservation; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY reservation (id_res, id_doc, id_pac, at, date, state) FROM stdin;
+    3       3       8       11:30:00        2014-12-11      1
+    1       3       2       09:30:00        2014-12-24      1
+    2       3       2       10:00:00        2014-12-24      2
+    4       3       7       08:00:00        2014-12-03      2
+    5       3       3       11:00:00        2014-12-25      1
+    7       3       3       14:20:00        2015-12-04      1
+    8       7       12      10:00:00        2014-12-24      1
+    10      3       11      10:20:00        2014-12-31      0
+    11      7       6       09:20:00        2014-12-01      1
+    9       7       11      14:40:00        2014-12-28      2
+    13      7       17      08:00:00        2014-12-04      2
+    12      7       17      16:00:00        2014-12-10      1
+    15      7       20      12:00:00        2014-12-03      0
+    16      7       20      14:40:00        2014-12-03      0
+    17      3       17      09:20:00        2014-12-12      0
+    14      3       20      08:20:00        2014-12-02      1
+    19      3       12      09:00:00        2014-12-29      0
+    20      3       15      12:20:00        2014-12-18      1
+    18      3       18      08:00:00        2014-12-23      1
+    6       3       3       08:00:00        2015-01-21      2
+    21      3       6       08:40:00        2014-12-29      1
+    22      6       20      08:10:00        2014-12-12      2
+    23      6       14      08:30:00        2014-12-04      0
+    24      7       14      12:40:00        2014-12-26      0
+    25      3       14      11:40:00        2014-12-25      0
+    26      6       15      08:40:00        2014-12-04      0
+    27      3       15      11:00:00        2014-12-26      0
+    28      7       15      16:00:00        2014-12-03      0
+    \.
+     
+     
+    --
+    -- Name: reservation_id_res_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('reservation_id_res_seq', 28, true);
+     
+     
+    --
+    -- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: jadus
+    --
+     
+    COPY role (id_role, name, level) FROM stdin;
+    1       admin   0
+    2       doctor  1
+    3       patient 99
+    \.
+     
+     
+    --
+    -- Name: role_id_role_seq; Type: SEQUENCE SET; Schema: public; Owner: jadus
+    --
+     
+    SELECT pg_catalog.setval('role_id_role_seq', 3, true);
+     
+     
+    --
+    -- Name: calendar_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY calendar
+        ADD CONSTRAINT calendar_pkey PRIMARY KEY (id_cal);
+     
+     
+    --
+    -- Name: dash_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY dash
+        ADD CONSTRAINT dash_pkey PRIMARY KEY (id_dash);
+     
+     
+    --
+    -- Name: department_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY department
+        ADD CONSTRAINT department_pkey PRIMARY KEY (id_dep);
+     
+     
+    --
+    -- Name: doctor_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY doctor
+        ADD CONSTRAINT doctor_pkey PRIMARY KEY (id_doc);
+     
+     
+    --
+    -- Name: insurance_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY insurance
+        ADD CONSTRAINT insurance_pkey PRIMARY KEY (id_ins);
+     
+     
+    --
+    -- Name: nis_user_login_key; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY nis_user
+        ADD CONSTRAINT nis_user_login_key UNIQUE (login);
+     
+     
+    --
+    -- Name: nis_user_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY nis_user
+        ADD CONSTRAINT nis_user_pkey PRIMARY KEY (id_user);
+     
+     
+    --
+    -- Name: patient_edit_history_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY patient_edit_history
+        ADD CONSTRAINT patient_edit_history_pkey PRIMARY KEY (id_his);
+     
+     
+    --
+    -- Name: patient_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY patient
+        ADD CONSTRAINT patient_pkey PRIMARY KEY (id_pac);
+     
+     
+    --
+    -- Name: reservation_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY reservation
+        ADD CONSTRAINT reservation_pkey PRIMARY KEY (id_res);
+     
+     
+    --
+    -- Name: role_pkey; Type: CONSTRAINT; Schema: public; Owner: jadus; Tablespace:
+    --
+     
+    ALTER TABLE ONLY role
+        ADD CONSTRAINT role_pkey PRIMARY KEY (id_role);
+     
+     
+    --
+    -- Name: calendar_id_doc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY calendar
+        ADD CONSTRAINT calendar_id_doc_fkey FOREIGN KEY (id_doc) REFERENCES doctor(id_doc);
+     
+     
+    --
+    -- Name: doctor_id_dep_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY doctor
+        ADD CONSTRAINT doctor_id_dep_fkey FOREIGN KEY (id_dep) REFERENCES department(id_dep);
+     
+     
+    --
+    -- Name: doctor_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY doctor
+        ADD CONSTRAINT doctor_id_user_fkey FOREIGN KEY (id_user) REFERENCES nis_user(id_user);
+     
+     
+    --
+    -- Name: nis_user_id_dash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY nis_user
+        ADD CONSTRAINT nis_user_id_dash_fkey FOREIGN KEY (id_dash) REFERENCES dash(id_dash);
+     
+     
+    --
+    -- Name: nis_user_id_role_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY nis_user
+        ADD CONSTRAINT nis_user_id_role_fkey FOREIGN KEY (id_role) REFERENCES role(id_role);
+     
+     
+    --
+    -- Name: patient_edit_history_id_pac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient_edit_history
+        ADD CONSTRAINT patient_edit_history_id_pac_fkey FOREIGN KEY (id_pac) REFERENCES patient(id_pac);
+     
+     
+    --
+    -- Name: patient_edit_history_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient_edit_history
+        ADD CONSTRAINT patient_edit_history_id_user_fkey FOREIGN KEY (id_user) REFERENCES nis_user(id_user);
+     
+     
+    --
+    -- Name: patient_id_ins_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient
+        ADD CONSTRAINT patient_id_ins_fkey FOREIGN KEY (id_ins) REFERENCES insurance(id_ins);
+     
+     
+    --
+    -- Name: patient_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY patient
+        ADD CONSTRAINT patient_id_user_fkey FOREIGN KEY (id_user) REFERENCES nis_user(id_user);
+     
+     
+    --
+    -- Name: reservation_id_doc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY reservation
+        ADD CONSTRAINT reservation_id_doc_fkey FOREIGN KEY (id_doc) REFERENCES doctor(id_doc);
+     
+     
+    --
+    -- Name: reservation_id_pac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jadus
+    --
+     
+    ALTER TABLE ONLY reservation
+        ADD CONSTRAINT reservation_id_pac_fkey FOREIGN KEY (id_pac) REFERENCES patient(id_pac);
+     
+     
+    --
+    -- Name: public; Type: ACL; Schema: -; Owner: postgres
+    --
+     
+    REVOKE ALL ON SCHEMA public FROM PUBLIC;
+    REVOKE ALL ON SCHEMA public FROM postgres;
+    GRANT ALL ON SCHEMA public TO postgres;
+    GRANT ALL ON SCHEMA public TO PUBLIC;
+     
+     
+    --
+    -- PostgreSQL database dump complete
+    --
+

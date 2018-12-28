@@ -1,0 +1,28 @@
+--Name of the patient with the greatest number of visits:
+
+SELECT name  from (SELECT COUNT( v.patient_id ) as liczba, p.patient_name as name
+FROM Patients p, Visits v
+WHERE p.patient_id = v.patient_id
+GROUP BY v.patient_id
+ORDER BY liczba DESC) res
+LIMIT 1
+
+
+
+--Name of the doctor who was assigned to the patient with the longest visit duration:
+
+Select user_name Doctor_Name, MAX(end_date - start_date) as NAZWA from Visits v, user u
+where end_date is not null
+and end_date > start_date and u.user_id = v.doctor_id
+group by v.visit_id
+order by NAZWA desc
+LIMIT 1
+
+
+
+--List of patients who are currently hospitalized and are younger than 5 years old:
+
+
+select patient_name, patient_age from Patients p, Visits v
+where p.patient_id = v.patient_id and
+(v.end_date is null or v.end_date like '0000-00-00') and p.patient_age < 5

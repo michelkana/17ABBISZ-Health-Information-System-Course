@@ -1,0 +1,37 @@
+The goal is to add a calendar-based planning component to our health care information system. 
+
+Registration module
+
+- patient can request access to the system by providing a name, last name, email address and phone number
+- doctor can authorize or deny access to the system, if the patient request is approved, the system generates a password that is emailed to patient, if not the system sends a refusal
+- doctor can specify the maximal number of minutes patient can reserve as well as the maximal number of reservations per day, week and months
+- an authorized patient can sign into the system and change his password
+
+Calendar Setup Module
+
+- doctor can enter a time slot when he is free to receive patients in his department. A time slot is defined with a starting time and an end time.
+- doctor can apply a time slot to a date, or repeat it on a daily, weekly or monthly basis
+- doctor can edit or delete time slots
+- the status and color of time slots are always: green for free (no reservation, or only temtative or denied reservations), red for busy (one accepted reservation) 
+
+Reservation Creation Module
+
+- patient can view the calender of all doctors 
+- system only display patient's own reservations
+- patient can create a new reservation on one or more time slots with respect to the setup of maximum 
+- patient can cancel a reservation
+- system sends an email of time slots to both patient and doctor during creation or cancelling
+
+Reservation Confirmation Module
+
+- doctor can view own calendar or calendar of colleagues
+- doctor can change reservations made on his own calendar
+- doctor can change the status of a reservation, from new to temtative, from new/temtative to accepted/deny. 
+- an email is sent to patient if status changes
+- there can be only one accepted reservation per time slot
+- the status and color of time reservations are always: yelow (new reservation),  orange (temtative reservation), red (denied reservation), blue (accepted reservation) 
+- doctor can display the list of all accepted reservations starting from the current date
+
+Mobile Calendar
+
+- an Android app allows doctor to log in and view the list of all accepted reservations starting from the current date
