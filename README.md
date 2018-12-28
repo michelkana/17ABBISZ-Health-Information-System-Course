@@ -27,16 +27,16 @@ Session 0 is a class introduction. Session 12 is the final exam. Session 13 is r
 # Grading
 
 * Attendance to ALL sessions is mandatory
-		In case of non-attendance, provide a valid reason 
+		* In case of non-attendance, provide a valid reason 
 * 30 points from homework
-		1 homework per week
-		3 points per homework
-		the homework is an essay about the topics covered in the lecture
+		* 1 homework per week
+		* 3 points per homework
+		* the homework is an essay about the topics covered in the lecture
 * 20 points from practical projects
-		4 points for analyzing your own information system
-		10 points for implementing your own information system
-		4 points for testing your own information system
-		2 points for presenting your own information system  
+		* 4 points for analyzing your own information system
+		* 10 points for implementing your own information system
+		* 4 points for testing your own information system
+		* 2 points for presenting your own information system  
 * 50 points from final exam
-		30 points about the lectures
-		20 points about the labs
+		* 30 points about the lectures
+		* 20 points about the labs
